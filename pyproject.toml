@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "coursework"
+version = "0.1.0"
+description = "coursework of artem sergeev"
+authors = ["Your Name <you@example.com>"]
+license = "no licence i am punk"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "idk"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
