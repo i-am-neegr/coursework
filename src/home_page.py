@@ -1,6 +1,11 @@
 import json
 from datetime import datetime
 import pandas as pd
+import dotenv
+import os
+from courses import get_stock_prices, get_currency_rates
+
+dotenv.load_dotenv()
 
 
 def get_greeting():
@@ -54,55 +59,18 @@ def get_top_transactions(file_path):
     return transactions
 
 
-def get_currency_rates():
-    rates = [
-        {
-            "currency": "USD",
-            "rate": 73.21
-        },
-        {
-            "currency": "EUR",
-            "rate": 87.08
-        }
-    ]
-    return rates
-
-def get_stock_prices():
-    stocks = [
-        {
-            "stock": "AAPL",
-            "price": 150.12
-        },
-        {
-            "stock": "AMZN",
-            "price": 3173.18
-        },
-        {
-            "stock": "GOOGL",
-            "price": 2742.39
-        },
-        {
-            "stock": "MSFT",
-            "price": 296.71
-        },
-        {
-            "stock": "TSLA",
-            "price": 1007.08
-        }
-    ]
-    return stocks
-
 def generate_response(file_path):
+    api_key_currency = os.getenv('CURRENCY_API_KEY')
+    api_key_stock = os.getenv('STOCK_API_KEY')
+
     # Generate the JSON response
     response = {
         "greeting": get_greeting(),
         "cards": get_card_data(file_path),
         "top_transactions": get_top_transactions(file_path),
-        "currency_rates": get_currency_rates(),
-        "stock_prices": get_stock_prices()
+        "currency_rates": get_currency_rates(api_key_currency),
+        "sp500_price": get_stock_prices(api_key_stock)
     }
-
-    return json.dumps(response, ensure_ascii=False, indent=2)
 
 
 # Example usage
