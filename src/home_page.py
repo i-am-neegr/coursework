@@ -1,16 +1,17 @@
 import json
 from datetime import datetime
+from pathlib import Path
+
 import pandas as pd
 import dotenv
 import os
-from courses import get_stock_prices, get_currency_rates
+from src.courses import get_stock_prices, get_currency_rates
 
 dotenv.load_dotenv()
 
 
-def get_greeting():
-    current_time = datetime.now()
-    hour = current_time.hour
+def get_greeting(date: datetime) -> str:
+    hour = date.hour
 
     match hour:
         case hour if 5 <= hour < 12:
@@ -59,20 +60,16 @@ def get_top_transactions(file_path):
     return transactions
 
 
-def generate_response(file_path):
+def generate_response(file_path: Path = '..\\data\\operations.xlsx', date: datetime = datetime.now()):
+
     api_key_currency = os.getenv('CURRENCY_API_KEY')
     api_key_stock = os.getenv('STOCK_API_KEY')
 
     # Generate the JSON response
     response = {
-        "greeting": get_greeting(),
+        "greeting": get_greeting(date),
         "cards": get_card_data(file_path),
         "top_transactions": get_top_transactions(file_path),
         "currency_rates": get_currency_rates(api_key_currency),
         "sp500_price": get_stock_prices(api_key_stock)
     }
-
-
-# Example usage
-file_path = '..\\data\\operations.xlsx'
-print(generate_response(file_path))
