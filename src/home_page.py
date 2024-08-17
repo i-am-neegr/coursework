@@ -1,6 +1,4 @@
-import json
 from datetime import datetime
-from pathlib import Path
 
 import pandas as pd
 import dotenv
@@ -60,8 +58,7 @@ def get_top_transactions(file_path):
     return transactions
 
 
-def generate_response(file_path: Path = '..\\data\\operations.xlsx', date: datetime = datetime.now()):
-
+def generate_response(file_path: str = '..\\data\\operations.xlsx', date: datetime = datetime.now()):
     api_key_currency = os.getenv('CURRENCY_API_KEY')
     api_key_stock = os.getenv('STOCK_API_KEY')
 

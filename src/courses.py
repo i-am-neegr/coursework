@@ -1,8 +1,10 @@
 import requests
 
 
-def get_stock_prices(api_key, stocks: list = ['S&P 500']):
+def get_stock_prices(api_key, stocks=None):
     # stocks = ["AAPL", "AMZN", "GOOGL", "MSFT", "TSLA"]
+    if stocks is None:
+        stocks = ['S&P 500']
     stock_prices = []
 
     for stock in stocks:
