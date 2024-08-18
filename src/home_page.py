@@ -70,3 +70,5 @@ def generate_response(file_path: str = '..\\data\\operations.xlsx', date: dateti
         "currency_rates": get_currency_rates(api_key_currency),
         "sp500_price": get_stock_prices(api_key_stock)
     }
+
+    return response

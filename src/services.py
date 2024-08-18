@@ -1,18 +1,33 @@
-import os
+import pandas as pd
 import json
 
-from logger import setup_logging
-from src.functions import excel_unpack, find_string
-from pathlib import Path
-
-logger = setup_logging()
-
-def simple_search(search_string: str) -> str:
+def load_data(file_path):
+    """
+    Загружает данные из Excel-файла.
+    """
     try:
-        file = excel_unpack(os.path.join(Path(__file__).resolve().parents[1], "data", "operations.xlsx"))
-        json_file = json.dumps(find_string(file, search_string), ensure_ascii=False)
-        return json_file
-    except Exception as error:
-        logger.error(f"There is at least: {error}")
-        raise error
+        df = pd.read_excel(file_path)
+        return df.to_dict(orient='records')
+    except Exception as e:
+        raise Exception(f"Ошибка при загрузке данных: {e}")
 
+def search_by_query(query, data):
+    """
+    Ищет строки, где хотя бы одно из полей содержит заданный запрос.
+    """
+    results = []
+    for row in data:
+        if any(query.lower() in str(value).lower() for value in row.values()):
+            results.append(row)
+    return results
+
+def simple_search(query, file_path='data.xlsx'):
+    """
+    Выполняет поиск по запросу в данных из Excel-файла.
+    """
+    try:
+        data = load_data(file_path)
+        results = search_by_query(query, data)
+        return json.dumps(results, ensure_ascii=False)
+    except Exception as e:
+        raise Exception(f"Ошибка при обработке файла: {e}")
