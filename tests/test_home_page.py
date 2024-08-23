@@ -1,6 +1,8 @@
-import pandas as pd
 from datetime import datetime
 from unittest.mock import patch
+
+import pandas as pd
+
 from src.home_page import generate_response
 
 
@@ -8,28 +10,34 @@ from src.home_page import generate_response
 @patch("src.home_page.get_currency_rates")
 @patch("src.home_page.get_stock_prices")
 @patch("os.getenv")
-def test_generate_response(mock_getenv, mock_get_stock_prices, mock_get_currency_rates, mock_read_excel):
+def test_generate_response(
+    mock_getenv, mock_get_stock_prices, mock_get_currency_rates, mock_read_excel
+):
     # Mock the environment variables for the API keys
-    mock_getenv.side_effect = lambda key: "fake_api_key" if key in ["CURRENCY_API_KEY", "STOCK_API_KEY"] else None
+    mock_getenv.side_effect = lambda key: (
+        "fake_api_key" if key in ["CURRENCY_API_KEY", "STOCK_API_KEY"] else None
+    )
 
     # Mock DataFrame containing all necessary columns
-    mock_df = pd.DataFrame({
-        'Дата операции': ['2024-08-01', '2024-08-02'],
-        'Дата платежа': ['2024-08-01', '2024-08-02'],
-        'Номер карты': ['1234', '5678'],
-        'Статус': ['Completed', 'Pending'],
-        'Сумма операции': [150.0, 200.0],
-        'Валюта операции': ['RUB', 'RUB'],
-        'Сумма платежа': [150.0, 200.0],
-        'Валюта платежа': ['RUB', 'RUB'],
-        'Кэшбэк': [1.5, 2.0],
-        'Категория': ['Food', 'Transport'],
-        'MCC': ['5411', '4121'],
-        'Описание': ['Lunch', 'Bus fare'],
-        'Бонусы (включая кэшбэк)': [1.5, 2.0],
-        'Округление на инвесткопилку': [0.0, 0.0],
-        'Сумма операции с округлением': [150.0, 200.0]
-    })
+    mock_df = pd.DataFrame(
+        {
+            "Дата операции": ["2024-08-01", "2024-08-02"],
+            "Дата платежа": ["2024-08-01", "2024-08-02"],
+            "Номер карты": ["1234", "5678"],
+            "Статус": ["Completed", "Pending"],
+            "Сумма операции": [150.0, 200.0],
+            "Валюта операции": ["RUB", "RUB"],
+            "Сумма платежа": [150.0, 200.0],
+            "Валюта платежа": ["RUB", "RUB"],
+            "Кэшбэк": [1.5, 2.0],
+            "Категория": ["Food", "Transport"],
+            "MCC": ["5411", "4121"],
+            "Описание": ["Lunch", "Bus fare"],
+            "Бонусы (включая кэшбэк)": [1.5, 2.0],
+            "Округление на инвесткопилку": [0.0, 0.0],
+            "Сумма операции с округлением": [150.0, 200.0],
+        }
+    )
 
     # Update the side effect to return the mock DataFrame
     mock_read_excel.side_effect = lambda file_path: mock_df
@@ -59,6 +67,5 @@ def test_generate_response(mock_getenv, mock_get_stock_prices, mock_get_currency
 
     # Individual field checks
 
-    assert result["cards"][0][
-               'last_digits'] == '1234'
-    assert result["top_transactions"][0]["date"] == '2024-08-02'
+    assert result["cards"][0]["last_digits"] == "1234"
+    assert result["top_transactions"][0]["date"] == "2024-08-02"

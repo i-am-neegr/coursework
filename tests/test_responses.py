@@ -1,36 +1,114 @@
-import pytest
 import pandas as pd
-from src.responses import spending_by_category
 
-@pytest.fixture
-def sample_transactions():
+from src.responses import (
+    spending_by_category,
+)  # Замените 'your_module' на имя вашего модуля
+
+
+def test_spending_by_category_valid_data():
+    # Подготовка данных
     data = {
-        'Дата операции': ['2024-08-01', '2024-08-02', '2024-08-02', '2024-08-03'],
-        'Категория': ['Food', 'Transport', 'Food', 'Entertainment'],
-        'Сумма операции': [150.0, 50.0, 200.0, 300.0],
-        'Описание': ['Lunch', 'Bus fare', 'Dinner', 'Movie']
+        "Дата операции": [
+            "01.08.2024 12:00:00",
+            "01.08.2024 14:30:00",
+            "02.08.2024 09:15:00",
+        ],
+        "Категория": ["Еда", "Транспорт", "Еда"],
     }
-    return pd.DataFrame(data)
+    transactions = pd.DataFrame(data)
 
-def test_empty_dataframe():
-    df = pd.DataFrame()
-    result = spending_by_category(df, 'Food', '2024-08-01')
-    assert result.empty, "Результат должен быть пустым DataFrame"
+    # Преобразование строковых дат в datetime
+    transactions["Дата операции"] = pd.to_datetime(
+        transactions["Дата операции"], format="%d.%m.%Y %H:%M:%S"
+    )
 
-def test_no_transactions_on_date(sample_transactions):
-    result = spending_by_category(sample_transactions, 'Food', '2024-08-04')
-    assert result.empty, "Результат должен быть пустым DataFrame для даты без транзакций"
+    # Тестирование
+    result = spending_by_category(transactions, "Еда", "2024-08-01 00:00:00")
 
-def test_filtering_by_category(sample_transactions):
-    result = spending_by_category(sample_transactions, 'Food', '2024-08-02')
-    assert len(result) == 1
-    assert (result['Категория'] == 'Food').all(), "Все транзакции должны быть в категории 'Food'"
+    # Для отладки
+    print("Result DataFrame:\n", result)
 
-def test_filtering_by_date(sample_transactions):
-    result = spending_by_category(sample_transactions, 'Transport', '2024-08-02')
-    assert len(result) == 1, "Должна быть 1 транзакция для категории 'Transport' на 2024-08-02"
-    assert result.iloc[0]['Категория'] == 'Transport', "Категория должна быть 'Transport'"
+    expected_data = {
+        "Дата операции": ["01.08.2024 12:00:00"],  # Ожидаем только одну запись
+        "Категория": ["Еда"],
+    }
+    expected_df = pd.DataFrame(expected_data)
+    expected_df["Дата операции"] = pd.to_datetime(
+        expected_df["Дата операции"], format="%d.%m.%Y %H:%M:%S"
+    )
 
-def test_no_category_match(sample_transactions):
-    result = spending_by_category(sample_transactions, 'Utilities', '2024-08-02')
-    assert result.empty, "Результат должен быть пустым, если категория не найдена"
+    # Убедитесь, что оба DataFrame имеют одинаковые столбцы
+    assert list(result.columns) == list(expected_df.columns), "Столбцы не совпадают"
+
+    pd.testing.assert_frame_equal(
+        result.reset_index(drop=True), expected_df.reset_index(drop=True)
+    )
+
+
+def test_spending_by_category_no_transactions():
+    # Подготовка данных
+    data = {
+        "Дата операции": ["01.08.2024 12:00:00"],
+        "Категория": ["Еда"],
+    }
+    transactions = pd.DataFrame(data)
+    transactions["Дата операции"] = pd.to_datetime(
+        transactions["Дата операции"], format="%d.%m.%Y %H:%M:%S"
+    )
+
+    # Тестирование
+    result = spending_by_category(transactions, "Транспорт", "2024-08-01 00:00:00")
+    expected_df = pd.DataFrame(
+        columns=["Дата операции", "Категория"]
+    )  # Ожидаем пустой DataFrame с нужными столбцами
+
+    pd.testing.assert_frame_equal(
+        result.reset_index(drop=True), expected_df.reset_index(drop=True)
+    )
+
+
+def test_spending_by_category_missing_columns():
+    # Подготовка данных без одной из нужных колонок
+    data = {
+        "Дата операции": ["01.08.2024 12:00:00"],  # Оставляем только "Дата операции"
+    }
+    transactions = pd.DataFrame(data)
+
+    # Преобразуем строку даты в datetime
+    transactions["Дата операции"] = pd.to_datetime(
+        transactions["Дата операции"], format="%d.%m.%Y %H:%M:%S"
+    )
+
+    # Тестирование
+    result = spending_by_category(transactions, "Еда", "2024-08-01 00:00:00")
+
+    # Ожидаем пустой DataFrame с нужными столбцами
+    expected_df = pd.DataFrame(columns=["Дата операции", "Категория"])
+
+    # Проверка на равенство DataFrame
+    pd.testing.assert_frame_equal(
+        result.reset_index(drop=True), expected_df.reset_index(drop=True)
+    )
+
+
+def test_spending_by_category_invalid_date_format():
+    # Подготовка данных
+    data = {
+        "Дата операции": ["01.08.2024 12:00:00"],
+        "Категория": ["Еда"],
+    }
+    transactions = pd.DataFrame(data)
+    transactions["Дата операции"] = pd.to_datetime(
+        transactions["Дата операции"], format="%d.%m.%Y %H:%M:%S"
+    )
+
+    # Тестирование с неправильным форматом даты
+    result = spending_by_category(transactions, "Еда", "01-08-2024")
+
+    # Ожидаем пустой DataFrame с нужными столбцами
+    expected_df = pd.DataFrame(columns=["Дата операции", "Категория"])
+
+    # Проверка на равенство DataFrame
+    pd.testing.assert_frame_equal(
+        result.reset_index(drop=True), expected_df.reset_index(drop=True)
+    )
