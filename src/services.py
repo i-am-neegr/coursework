@@ -1,5 +1,7 @@
-import pandas as pd
 import json
+
+import pandas as pd
+
 
 def load_data(file_path):
     """
@@ -7,9 +9,10 @@ def load_data(file_path):
     """
     try:
         df = pd.read_excel(file_path)
-        return df.to_dict(orient='records')
+        return df.to_dict(orient="records")
     except Exception as e:
         raise Exception(f"Ошибка при загрузке данных: {e}")
+
 
 def search_by_query(query, data):
     """
@@ -21,7 +24,8 @@ def search_by_query(query, data):
             results.append(row)
     return results
 
-def simple_search(query, file_path='data.xlsx'):
+
+def simple_search(query, file_path="data.xlsx"):
     """
     Выполняет поиск по запросу в данных из Excel-файла.
     """

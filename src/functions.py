@@ -7,14 +7,13 @@ from logger import setup_logging
 logger = setup_logging()
 
 
-def excel_unpack(path: str) -> list:
-    return pd.read_excel(path, na_filter=False).to_dict(orient="records")
-
-
 def find_string(operation: list[dict], string: str) -> list[dict]:
     new_data = []
     for item in operation:
-        if string.lower() in item["Категория"].lower() or string.lower() in item["Описание"].lower():
+        if (
+            string.lower() in item["Категория"].lower()
+            or string.lower() in item["Описание"].lower()
+        ):
             new_data.append(item)
     return new_data
 
